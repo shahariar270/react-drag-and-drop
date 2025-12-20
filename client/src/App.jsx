@@ -1,5 +1,6 @@
 import React from "react"
 import { formatTitle, renderList } from "./helper"
+import './styles.scss'
 
 function App() {
 
