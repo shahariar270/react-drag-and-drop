@@ -4,6 +4,17 @@ import './styles.scss'
 
 function App() {
 
+  const handleDragStart = (e, item, container) => {
+    // dragItem.current = item;
+    // dragContainer.current = container;
+    e.target.style.opacity = "0.5";
+  };
+
+  const handleDragEnd = (e) => {
+    e.target.style.opacity = "1";
+  };
+
+
   return (
     <React.Fragment>
       <div className="task-board">
@@ -17,7 +28,16 @@ function App() {
               {items.map((task, index) => (
                 <div
                   key={index}
-                  className="task-board__column-item"
+                  onDragStart={(e) => handleDragStart(e, item, container)}
+                  onDragEnd={handleDragEnd}
+                  draggable
+                  style={{
+                    userSelect: "none",
+                    padding: 16,
+                    margin: "0 0 8px 0",
+                    backgroundColor: "white",
+                    cursor: "move",
+                  }}
                 >
                   {task}
                 </div>
