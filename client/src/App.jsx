@@ -1,5 +1,5 @@
 import React from "react"
-import { renderList } from "./helper"
+import { formatTitle, renderList } from "./helper"
 
 function App() {
 
