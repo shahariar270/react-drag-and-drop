@@ -6,16 +6,23 @@ function App() {
 
   return (
     <React.Fragment>
-      <div className="board">
+      <div className="task-board">
         {Object.entries(renderList).map(([status, items]) => (
-          <div className="column" key={status}>
-            <h3>{formatTitle(status)}</h3>
+          <div className="task-board__column" key={status}>
+            <h3 className="task-board__column-title">
+              {formatTitle(status)}
+            </h3>
 
-            <ul>
+            <div className="task-board__column-list">
               {items.map((task, index) => (
-                <li key={index}>{task}</li>
+                <div
+                  key={index}
+                  className="task-board__column-item"
+                >
+                  {task}
+                </div>
               ))}
-            </ul>
+            </div>
           </div>
         ))}
       </div>
