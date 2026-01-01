@@ -1,70 +1,95 @@
 import React, { useRef, useState } from "react";
-import { formatTitle, renderList } from "./helper";
-import "./styles.scss";
 
-function App() {
-  const [board, setBoard] = useState(renderList);
+const initialBoard = {
+  todo: ["Task A", "Task B"],
+  doing: ["Task C"],
+  done: ["Task D"]
+};
+
+export default function App() {
+  const [board, setBoard] = useState(initialBoard);
+  const [order, setOrder] = useState(Object.keys(initialBoard));
 
   const dragItem = useRef(null);
-  const dragFrom = useRef(null);
-
-  const handleDragStart = (e, task, status) => {
-    dragItem.current = task;
-    dragFrom.current = status;
-    e.target.style.opacity = "0.5";
-  };
-
-  const handleDragEnd = (e) => {
-    e.target.style.opacity = "1";
-  };
-
-  const handleDrop = (status) => {
-    const item = dragItem.current;
-    const from = dragFrom.current;
-
-    if (!item || !from || from === status) return;
-
-    setBoard(prev => {
-      const newBoard = { ...prev };
-
-      newBoard[from] = newBoard[from].filter(t => t !== item);
-      newBoard[status] = [...newBoard[status], item];
-
-      return newBoard;
-    });
-  };
+  const dragItemFrom = useRef(null);
+  const dragContainer = useRef(null);
 
   return (
-    <div className="task-board">
-      {Object.entries(board).map(([status, items]) => (
+    <div style={{ display: "flex", gap: 20, padding: 20 }}>
+      {order.map(container => (
         <div
-          key={status}
-          className="task-board__column"
-          onDragOver={(e) => e.preventDefault()}
-          onDrop={() => handleDrop(status)}
+          key={container}
+          draggable
+          onDragStart={() => onContainerDragStart(container)}
+          onDragOver={e => e.preventDefault()}
+          onDrop={() => onContainerDrop(container)}
+          style={{
+            width: 220,
+            padding: 10,
+            background: "#f4f4f4",
+            borderRadius: 6
+          }}
         >
-          <h3>{formatTitle(status)}</h3>
+          <h3>{container.toUpperCase()}</h3>
 
-          {items.map((task, index) => (
-            <div
-              key={index}
-              draggable
-              onDragStart={(e) => handleDragStart(e, task, status)}
-              onDragEnd={handleDragEnd}
-              style={{
-                padding: 16,
-                marginBottom: 8,
-                background: "#fff",
-                cursor: "move",
-              }}
-            >
-              {task}
-            </div>
-          ))}
+          <div
+            onDragOver={e => e.preventDefault()}
+            onDrop={() => onItemDrop(container)}
+          >
+            {board[container].map(item => (
+              <div
+                key={item}
+                draggable
+                onDragStart={() => onItemDragStart(item, container)}
+                style={{
+                  padding: 10,
+                  marginBottom: 8,
+                  background: "#fff",
+                  cursor: "move"
+                }}
+              >
+                {item}
+              </div>
+            ))}
+          </div>
         </div>
       ))}
     </div>
   );
-}
 
-export default App;
+  function onItemDragStart(item, container) {
+    dragItem.current = item;
+    dragItemFrom.current = container;
+  }
+
+  function onItemDrop(to) {
+    const item = dragItem.current;
+    const from = dragItemFrom.current;
+    if (!item || from === to) return;
+
+    setBoard(prev => {
+      const copy = { ...prev };
+      copy[from] = copy[from].filter(t => t !== item);
+      copy[to] = [...copy[to], item];
+      return copy;
+    });
+  }
+
+  function onContainerDragStart(container) {
+    dragContainer.current = container;
+  }
+
+  function onContainerDrop(target) {
+    const from = dragContainer.current;
+    if (from === target) return;
+
+    setOrder(prev => {
+      const arr = [...prev];
+      const fromIndex = arr.indexOf(from);
+      const toIndex = arr.indexOf(target);
+      arr.splice(fromIndex, 1);
+      arr.splice(toIndex, 0, from);
+      return arr;
+    });
+  }
+}
