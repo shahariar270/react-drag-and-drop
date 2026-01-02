@@ -1,95 +1,75 @@
 import React, { useRef, useState } from "react";
+import "./styles.scss";
 
 const initialBoard = {
-  todo: ["Task A", "Task B"],
-  doing: ["Task C"],
-  done: ["Task D"]
+  todo: {
+    title: "Todo",
+    cards: ["Task A", "Task B"]
+  },
+  doing: {
+    title: "Doing",
+    cards: ["Task C"]
+  },
+  done: {
+    title: "Done",
+    cards: ["Task D"]
+  }
 };
 
 export default function App() {
   const [board, setBoard] = useState(initialBoard);
-  const [order, setOrder] = useState(Object.keys(initialBoard));
 
-  const dragItem = useRef(null);
-  const dragItemFrom = useRef(null);
-  const dragContainer = useRef(null);
+  const dragCard = useRef(null);
+  const dragFromColumn = useRef(null);
+
+  const allowDrop = e => e.preventDefault();
+
+  const handleCardDragStart = (card, columnKey) => {
+    dragCard.current = card;
+    dragFromColumn.current = columnKey;
+  };
+
+  const handleCardDrop = (toColumn) => {
+    const card = dragCard.current;
+    const from = dragFromColumn.current;
+
+    if (!card || from === toColumn) return;
+
+    setBoard(prev => {
+      const copy = { ...prev };
+
+      copy[from].cards = copy[from].cards.filter(c => c !== card);
+      copy[toColumn].cards = [...copy[toColumn].cards, card];
+
+      return copy;
+    });
+  };
 
   return (
-    <div style={{ display: "flex", gap: 20, padding: 20 }}>
-      {order.map(container => (
+    <div className="board">
+      {Object.entries(board).map(([key, column]) => (
         <div
-          key={container}
-          draggable
-          onDragStart={() => onContainerDragStart(container)}
-          onDragOver={e => e.preventDefault()}
-          onDrop={() => onContainerDrop(container)}
-          style={{
-            width: 220,
-            padding: 10,
-            background: "#f4f4f4",
-            borderRadius: 6
-          }}
+          key={key}
+          className="column"
+          onDragOver={allowDrop}
+          onDrop={() => handleCardDrop(key)}
         >
-          <h3>{container.toUpperCase()}</h3>
+          <h3>{column.title}</h3>
 
-          <div
-            onDragOver={e => e.preventDefault()}
-            onDrop={() => onItemDrop(container)}
-          >
-            {board[container].map(item => (
-              <div
-                key={item}
-                draggable
-                onDragStart={() => onItemDragStart(item, container)}
-                style={{
-                  padding: 10,
-                  marginBottom: 8,
-                  background: "#fff",
-                  cursor: "move"
-                }}
-              >
-                {item}
-              </div>
-            ))}
-          </div>
+          {column.cards.map(card => (
+            <div
+              key={card}
+              className="card"
+              draggable
+              onDragStart={() =>
+                handleCardDragStart(card, key)
+              }
+            >
+              {card}
+            </div>
+          ))}
         </div>
       ))}
     </div>
   );
-
-  function onItemDragStart(item, container) {
-    dragItem.current = item;
-    dragItemFrom.current = container;
-  }
-
-  function onItemDrop(to) {
-    const item = dragItem.current;
-    const from = dragItemFrom.current;
-    if (!item || from === to) return;
-
-    setBoard(prev => {
-      const copy = { ...prev };
-      copy[from] = copy[from].filter(t => t !== item);
-      copy[to] = [...copy[to], item];
-      return copy;
-    });
-  }
-
-  function onContainerDragStart(container) {
-    dragContainer.current = container;
-  }
-
-  function onContainerDrop(target) {
-    const from = dragContainer.current;
-    if (from === target) return;
-
-    setOrder(prev => {
-      const arr = [...prev];
-      const fromIndex = arr.indexOf(from);
-      const toIndex = arr.indexOf(target);
-      arr.splice(fromIndex, 1);
-      arr.splice(toIndex, 0, from);
-      return arr;
-    });
-  }
 }

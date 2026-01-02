@@ -1,43 +1,20 @@
-.task-board {
+.board {
   display: flex;
   gap: 16px;
-  padding: 16px;
+  padding: 20px;
+}
 
-  &__column {
-    flex: 1;
-    background: #fff;
-    border-radius: 8px;
-    border: 1px solid #e5e5e5;
-    padding: 12px;
-    display: flex;
-    flex-direction: column;
+.column {
+  width: 240px;
+  background: #f4f5f7;
+  padding: 12px;
+  border-radius: 6px;
+}
 
-    &-title {
-      font-size: 16px;
-      font-weight: 600;
-      margin-bottom: 12px;
-      text-transform: capitalize;
-    }
-    &-list {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    &-item {
-      padding: 8px 10px;
-      background: #f7f7f7;
-      border-radius: 6px;
-      font-size: 14px;
-      cursor: pointer;
-      transition:
-        background 0.2s ease,
-        transform 0.15s ease;
-
-      &:hover {
-        background: #ececec;
-        transform: translateY(-1px);
-      }
-    }
-  }
+.card {
+  background: #fff;
+  padding: 10px;
+  margin-bottom: 8px;
+  border-radius: 4px;
+  cursor: grab;
 }
