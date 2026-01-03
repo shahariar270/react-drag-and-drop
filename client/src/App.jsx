@@ -1,4 +1,5 @@
 import React, { useRef, useState } from "react";
+import './styles.scss'
 
 export default function App() {
   const [column, setColumn] = useState([
@@ -14,9 +15,6 @@ export default function App() {
 
   const dragColumnIndex = useRef(null);
   const dragCardIndex = useRef(null);
-
-
-  const dragIndex = useRef(null);
 
   const handleDragStart = (columnIndex, cardIndex) => {
     dragColumnIndex.current = columnIndex;
@@ -50,9 +48,9 @@ export default function App() {
   };
 
   return (
-    <div style={{ padding: 40 }}>
+    <div className="column-wrapper">
       {column.map((col, colIndex) => (
-        <div key={col.title}>
+        <div key={col.title} className="column">
           <h3>{col.title}</h3>
 
           {col.cards.map((card, cardIndex) => (
