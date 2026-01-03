@@ -24,28 +24,35 @@ export default function App() {
   const handleDragOver = (e) => {
     e.preventDefault();
   };
+  const handleDrop = (toColumnIndex, toCardIndex) => {
+    const fromColumnIndex = dragColumnIndex.current;
+    const fromCardIndex = dragCardIndex.current;
 
-  const handleDrop = (columnIndex, dropIndex) => {
-    if (dragColumnIndex.current !== columnIndex) return;
-
-    const fromIndex = dragCardIndex.current;
-    if (fromIndex === dropIndex) return;
+    if (fromColumnIndex === null || fromCardIndex === null) return;
 
     setColumn(prev => {
       const copy = [...prev];
-      const cards = [...copy[columnIndex].cards];
 
-      const moved = cards.splice(fromIndex, 1)[0];
-      cards.splice(dropIndex, 0, moved);
+      // source column
+      const fromCards = [...copy[fromColumnIndex].cards];
+      const movedCard = fromCards.splice(fromCardIndex, 1)[0];
 
-      copy[columnIndex] = {
-        ...copy[columnIndex],
-        cards
-      };
+      // target column
+      const toCards = [...copy[toColumnIndex].cards];
+      toCards.splice(toCardIndex, 0, movedCard);
+
+      // update columns
+      copy[fromColumnIndex] = { ...copy[fromColumnIndex], cards: fromCards };
+      copy[toColumnIndex] = { ...copy[toColumnIndex], cards: toCards };
 
       return copy;
     });
+
+    // reset drag refs
+    dragColumnIndex.current = null;
+    dragCardIndex.current = null;
   };
+
   const handleColDragStart = (dropIndex) => {
     dragColumnIndex.current = dropIndex;
   };
@@ -74,17 +81,20 @@ export default function App() {
       {column.map((col, colIndex) => (
         <div
           key={col.title}
-          draggable
           className="column"
-          onDragStart={() =>
-            handleColDragStart(colIndex)
-          }
-          onDragOver={handleColDragOver}
-          onDrop={() =>
-            handleColumnDrop(colIndex)
-          }
+
         >
-          <h3>{col.title}</h3>
+          <h3
+            draggable
+            onDragStart={() =>
+              handleColDragStart(colIndex)
+            }
+            onDragOver={handleColDragOver}
+            onDrop={() =>
+              handleColumnDrop(colIndex)
+            }
+
+          >{col.title}</h3>
 
           {col.cards.map((card, cardIndex) => (
             <div
