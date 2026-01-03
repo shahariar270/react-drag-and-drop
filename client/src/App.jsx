@@ -46,11 +46,44 @@ export default function App() {
       return copy;
     });
   };
+  const handleColDragStart = (dropIndex) => {
+    dragColumnIndex.current = dropIndex;
+  };
+
+  const handleColDragOver = (e) => {
+    e.preventDefault();
+  };
+
+  const handleColumnDrop = (dropIndex) => {
+    const fromIndex = dragColumnIndex.current;
+    if (fromIndex === dropIndex) return;
+
+    setColumn(prev => {
+      const shallowCopy = [...prev];
+      const move = shallowCopy.splice(fromIndex, 1)[0];
+      shallowCopy.splice(dropIndex, 0, move)
+      return shallowCopy;
+    })
+
+
+
+  };
 
   return (
     <div className="column-wrapper">
       {column.map((col, colIndex) => (
-        <div key={col.title} className="column">
+        <div
+          key={col.title}
+          draggable
+          className="column"
+          onDragStart={() =>
+            handleColDragStart(colIndex)
+          }
+          onDragOver={handleColDragOver}
+          onDrop={() =>
+            handleColumnDrop(colIndex)
+          }
+        >
           <h3>{col.title}</h3>
 
           {col.cards.map((card, cardIndex) => (
