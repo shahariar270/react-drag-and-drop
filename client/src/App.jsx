@@ -33,22 +33,18 @@ export default function App() {
     setColumn(prev => {
       const copy = [...prev];
 
-      // source column
       const fromCards = [...copy[fromColumnIndex].cards];
       const movedCard = fromCards.splice(fromCardIndex, 1)[0];
 
-      // target column
       const toCards = [...copy[toColumnIndex].cards];
       toCards.splice(toCardIndex, 0, movedCard);
 
-      // update columns
       copy[fromColumnIndex] = { ...copy[fromColumnIndex], cards: fromCards };
       copy[toColumnIndex] = { ...copy[toColumnIndex], cards: toCards };
 
       return copy;
     });
 
-    // reset drag refs
     dragColumnIndex.current = null;
     dragCardIndex.current = null;
   };
