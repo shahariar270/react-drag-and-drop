@@ -12,45 +12,52 @@ export default function App() {
       cards: ["Task e", "Task d", "Task f"]
     }
   ]);
+  const dragCardFromColumn = useRef(null);
+  const dragCardFromIndex = useRef(null);
 
-  const dragColumnIndex = useRef(null);
-  const dragCardIndex = useRef(null);
+  const dragColumnFromIndex = useRef(null);
+
 
   const handleDragStart = (columnIndex, cardIndex) => {
-    dragColumnIndex.current = columnIndex;
-    dragCardIndex.current = cardIndex;
+    dragCardFromColumn.current = columnIndex;
+    dragCardFromIndex.current = cardIndex;
   };
 
   const handleDragOver = (e) => {
     e.preventDefault();
   };
   const handleDrop = (toColumnIndex, toCardIndex) => {
-    const fromColumnIndex = dragColumnIndex.current;
-    const fromCardIndex = dragCardIndex.current;
+    const fromColumnIndex = dragCardFromColumn.current;
+    const fromCardIndex = dragCardFromIndex.current;
 
-    if (fromColumnIndex === null || fromCardIndex === null) return;
+    if (
+      fromColumnIndex === null ||
+      fromCardIndex === null
+    ) return;
+
+    // same place → do nothing
+    if (
+      fromColumnIndex === toColumnIndex &&
+      fromCardIndex === toCardIndex
+    ) return;
 
     setColumn(prev => {
-      const copy = [...prev];
+      const copy = structuredClone(prev);
 
-      const fromCards = [...copy[fromColumnIndex].cards];
-      const movedCard = fromCards.splice(fromCardIndex, 1)[0];
+      const movedCard =
+        copy[fromColumnIndex].cards.splice(fromCardIndex, 1)[0];
 
-      const toCards = [...copy[toColumnIndex].cards];
-      toCards.splice(toCardIndex, 0, movedCard);
-
-      copy[fromColumnIndex] = { ...copy[fromColumnIndex], cards: fromCards };
-      copy[toColumnIndex] = { ...copy[toColumnIndex], cards: toCards };
+      copy[toColumnIndex].cards.splice(toCardIndex, 0, movedCard);
 
       return copy;
     });
 
-    dragColumnIndex.current = null;
-    dragCardIndex.current = null;
+    dragCardFromColumn.current = null;
+    dragCardFromIndex.current = null;
   };
 
-  const handleColDragStart = (dropIndex) => {
-    dragColumnIndex.current = dropIndex;
+  const handleColDragStart = (index) => {
+    dragColumnFromIndex.current = index;
   };
 
   const handleColDragOver = (e) => {
@@ -58,19 +65,20 @@ export default function App() {
   };
 
   const handleColumnDrop = (dropIndex) => {
-    const fromIndex = dragColumnIndex.current;
-    if (fromIndex === dropIndex) return;
+    const fromIndex = dragColumnFromIndex.current;
+
+    if (fromIndex === null || fromIndex === dropIndex) return;
 
     setColumn(prev => {
-      const shallowCopy = [...prev];
-      const move = shallowCopy.splice(fromIndex, 1)[0];
-      shallowCopy.splice(dropIndex, 0, move)
-      return shallowCopy;
-    })
+      const copy = [...prev];
+      const moved = copy.splice(fromIndex, 1)[0];
+      copy.splice(dropIndex, 0, moved);
+      return copy;
+    });
 
-
-
+    dragColumnFromIndex.current = null;
   };
+
 
   return (
     <div className="column-wrapper">
