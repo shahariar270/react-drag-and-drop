@@ -10,6 +10,10 @@ export default function App() {
     {
       title: "Done",
       cards: ["Task e", "Task d", "Task f"]
+    },
+    {
+      title: 'in progress',
+      cards: []
     }
   ]);
   const dragCardFromColumn = useRef(null);
@@ -35,7 +39,6 @@ export default function App() {
       fromCardIndex === null
     ) return;
 
-    // same place → do nothing
     if (
       fromColumnIndex === toColumnIndex &&
       fromCardIndex === toCardIndex
@@ -46,8 +49,13 @@ export default function App() {
 
       const movedCard =
         copy[fromColumnIndex].cards.splice(fromCardIndex, 1)[0];
+      const toCards = copy[toColumnIndex].cards;
 
-      copy[toColumnIndex].cards.splice(toCardIndex, 0, movedCard);
+      if (toCards.length === 0) {
+        toCards.push(movedCard);
+      } else {
+        toCards.splice(toCardIndex, 0, movedCard);
+      }
 
       return copy;
     });
@@ -86,31 +94,29 @@ export default function App() {
         <div
           key={col.title}
           className="column"
-
+          onDragOver={handleDragOver}
+          onDrop={() => {
+            if (col.cards.length === 0) {
+              handleDrop(colIndex, 0);
+            }
+          }}
         >
           <h3
             draggable
-            onDragStart={() =>
-              handleColDragStart(colIndex)
-            }
+            onDragStart={() => handleColDragStart(colIndex)}
             onDragOver={handleColDragOver}
-            onDrop={() =>
-              handleColumnDrop(colIndex)
-            }
-
-          >{col.title}</h3>
+            onDrop={() => handleColumnDrop(colIndex)}
+          >
+            {col.title}
+          </h3>
 
           {col.cards.map((card, cardIndex) => (
             <div
               key={card}
               draggable
-              onDragStart={() =>
-                handleDragStart(colIndex, cardIndex)
-              }
+              onDragStart={() => handleDragStart(colIndex, cardIndex)}
               onDragOver={handleDragOver}
-              onDrop={() =>
-                handleDrop(colIndex, cardIndex)
-              }
+              onDrop={() => handleDrop(colIndex, cardIndex)}
               style={{
                 background: "#fff",
                 padding: 10,
@@ -124,6 +130,7 @@ export default function App() {
           ))}
         </div>
       ))}
+
     </div>
   );
 }
